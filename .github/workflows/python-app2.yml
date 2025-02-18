@@ -1,39 +1,48 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
-name: run app2.py
+name: Run Flask App and Access HTML
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-
-permissions:
-  contents: read
+    branches:
+      - main
 
 jobs:
-  build:
-
+  run_flask_app:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
       with:
-        python-version: "3.10"
+        python-version: '3.10'
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Lint with flake8
+        pip install -r requirements.txt
+        sudo apt-get update
+        sudo apt-get install -y chromium-browser curl
+
+    - name: Run Flask app
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+        nohup python app2.py &  # Inicia o app Flask em segundo plano
+        sleep 5  # Espera o Flask inicializar
+
+    - name: Access Flask page (using curl)
       run: |
-        pytest
+        curl http://127.0.0.1:5000/  # Acessa a página inicial
+        # Caso tenha mais páginas, você pode adicionar mais comandos curl aqui, como:
+        # curl http://127.0.0.1:5000/outra_pagina
+
+    - name: Run Tests (optional, e.g., Selenium or other)
+      run: |
+        pytest  # Ou qualquer outro comando de teste que você tenha configurado
+
+    - name: Stop Flask app
+      run: |
+        pkill python  # Mata o processo Flask após os testes
