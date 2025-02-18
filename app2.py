@@ -11,13 +11,13 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+# Caminho do banco de dados
+DB_PATH = 'sistema_protocolo.db'
+
 # Função para conectar ao banco de dados e criá-lo se não existir
 def get_db_connection():
-    db_path = 'sistema_protocolo.db'
-    
-    # Se o banco não existir, cria a estrutura inicial
-    if not os.path.exists(db_path):
-        conn = sqlite3.connect(db_path)
+    if not os.path.exists(DB_PATH):
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS Protocolo (
@@ -36,7 +36,7 @@ def get_db_connection():
         conn.commit()
         conn.close()
     
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -86,7 +86,6 @@ def salvar_arquivo(arquivo, protocolo):
 def download_file(filename):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     
-    # Verifique se o arquivo existe antes de servir
     if os.path.exists(file_path):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     else:
