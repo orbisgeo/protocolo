@@ -11,9 +11,32 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Função para conectar ao banco de dados
+# Função para conectar ao banco de dados e criá-lo se não existir
 def get_db_connection():
-    conn = sqlite3.connect('sistema_protocolo.db')
+    db_path = 'sistema_protocolo.db'
+    
+    # Se o banco não existir, cria a estrutura inicial
+    if not os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS Protocolo (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                protocolo TEXT,
+                data_hora TEXT,
+                nome_razao TEXT,
+                cpf_cnpj TEXT,
+                tipo_licenca TEXT,
+                doc_requerente TEXT,
+                doc_imovel TEXT,
+                projeto TEXT,
+                art TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
+    
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -70,5 +93,6 @@ def download_file(filename):
         return "Arquivo não encontrado", 404
 
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
 
