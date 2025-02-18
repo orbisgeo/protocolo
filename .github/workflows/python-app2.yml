@@ -28,9 +28,12 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y curl
 
+    - name: Ensure upload directory exists
+      run: mkdir -p uploads  # Garante que o diretório de uploads existe
+
     - name: Run Flask app in background
       run: |
-        python app2.py --host=0.0.0.0 --port=5000 &> flask.log &
+        python app2.py &> flask.log &  # Salva logs do Flask
         for i in {1..30}; do
           curl --silent --fail http://127.0.0.1:5000/ && break
           echo "Aguardando o Flask iniciar..."
@@ -42,11 +45,10 @@ jobs:
 
     - name: Show Flask logs (in case of failure)
       if: failure()
-      run: cat flask.log
+      run: cat flask.log  # Mostra os logs do Flask se falhar
 
     - name: Run Tests (optional)
       run: pytest
 
     - name: Stop Flask app
-      run: pkill -f app2.py
-
+      run: pkill -f app2.py  # Mata apenas o processo do Flask
