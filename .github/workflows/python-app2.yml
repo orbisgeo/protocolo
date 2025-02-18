@@ -26,12 +26,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt  # Instala as dependências do requirements.txt
         sudo apt-get update
-        sudo apt-get install -y chromium-browser curl
+        sudo apt-get install -y curl
 
     - name: Run Flask app in background
       run: |
-        nohup flask run --host=0.0.0.0 --port=5000 &  # Inicia o Flask em segundo plano
-        sleep 10  # Aguarda 10 segundos para garantir que o servidor Flask tenha iniciado
+        # Rodar o Flask em segundo plano
+        python app2.py &  
+        sleep 20  # Espera 20 segundos para garantir que o Flask esteja rodando
 
     - name: Access Flask page (using curl)
       run: |
